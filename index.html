@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>AEIOU</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+	<style>
+		body {
+			box-sizing: border-box;
+			padding: 0px;
+			margin: 0px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+		}
+		#container, #container2 {
+			width: 500px;
+			text-align: center;
+			border: 2px solid skyblue;
+			border-radius: 5px;
+			padding: 20px 0px;
+		}
+		#container2 {
+			display: none;
+			text-align: center;
+		}
+		#flashcard, #set-stack {
+			font-size: 80px;
+			font-family: Verdana, Geneva, Tahoma, sans-serif;
+		}
+		#set-stack {
+			margin: 20px 0px;
+		}
+		#generateRandom {
+			border: 0px;
+			background-color:skyblue;
+			padding: 10px;
+			font-size: 20px;
+			border-radius: 5px;
+			margin-top: 20px;
+		}
+		#generateRandom:hover {
+			background-color: rgb(87, 164, 194);
+			cursor: pointer;
+		}
+
+		#generateRandom2 {
+			border: 0px;
+			background-color:skyblue;
+			padding: 10px;
+			font-size: 20px;
+			border-radius: 5px;
+			margin-top: 40px;
+		}
+		#generateRandom2:hover {
+			background-color: rgb(87, 164, 194);
+			cursor: pointer;
+		}
+
+		.btn-link {
+			font-size: 14px;
+			font-family: Arial, Helvetica, sans-serif;
+			margin-top: 20px;
+		}
+		.btn-link:hover {
+			color:rgb(87, 164, 194);
+			cursor: pointer;
+		}
+		.stackItems {
+			font-size: 50px;
+			padding-left: 0;
+			margin: 20px 0px;
+		}
+		.stackItems li {
+			display: inline-block;
+			margin: 0 10px;
+			padding: 10px;
+		}
+		.stackItems li:hover {
+			cursor: pointer;
+			background-color: rgb(87, 164, 194);
+			border-radius: 5px;
+			color: #fff;
+			padding: 10px;
+			transition: 0.2s linear;
+		}
+		.shuffleNum, .setList {
+			border: 1px solid skyblue;
+			border-radius: 5px;
+			font-size: 24px;
+			width: 100px;
+			padding: 10px 10px;
+			text-align: center;
+			margin-top: 20px;
+		}
+		.setList {
+			width: 80%;
+		}
+	</style>
+</head>
+<body>
+	<div id="container" class="animate__animated animate__fadeIn">
+		<div>
+			<div id="flashcard">?</div>
+			<input
+				type="text"
+				class="shuffleNum"
+				id="shuffleNum"
+				onkeypress="return isNumber(event)"
+				placeholder="0"
+			/> <br />
+			<button type="button" id="generateRandom">Generate</button>
+			<p id="showSet" class="btn-link">show set</p>
+		</div>
+	</div>
+
+	<div id="container2" class="animate__animated animate__fadeIn">
+		<div>
+			<p id="set-stack"></p>
+			<input type="text" id="dataSetInput" class="setList" />
+			<p id="dataSet" class="btn-link">change set</p>
+			<p id="backToCard" class="btn-link">show flashcard</p>
+		</div>
+	</div>
+
+	<script>
+
+		let stack = ['a','e','i','o','u'];
+		let randomGenerate = document.getElementById('generateRandom');
+		let randomGenerate2 = document.getElementById('generateRandom2');
+		let flashText = document.getElementById('flashcard');
+		let showSet = document.getElementById('showSet');
+
+		function isNumber(evt) {
+			evt = (evt) ? evt : window.event;
+			var charCode = (evt.which) ? evt.which : evt.keyCode;
+			if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+				return false;
+			}
+			return true;
+		}
+
+		document.addEventListener("DOMContentLoaded", function(event) {
+
+			let dataset = document.getElementById('dataSetInput').value = stack;
+
+			document.getElementById('dataSet').addEventListener('click', () => {
+				let dataset = document.getElementById('dataSetInput').value;
+
+				if(dataset == "") {
+					alert('Provide a valid list!');
+					return false;
+				}
+
+				let newSet = dataset.split(',');
+				stack = newSet;
+
+				let listData = document.getElementById('set-stack');
+
+				let listItem = `<ul class='stackItems'>`
+				stack.forEach((d) => {
+					listItem += `<li>${ d }</li>`;
+				});
+				listItem += `</ul>`;
+				listData.innerHTML = listItem;
+
+			});
+
+			//detecting arrow key presses
+			document.addEventListener('keydown', function(e) {
+				switch (e.keyCode) {
+					//case 37:
+					//    alert('left');
+					//    break;
+					case 38:
+					case 40:
+
+						let guessLength = document.getElementById('shuffleNum').value;
+						let groupSet = "<ul class='stackItems'>"
+
+						for(i = 1; i <= guessLength; i++) {
+							let randomWord = Math.floor(Math.random() * stack.length);
+
+							groupSet += "<li>";
+							if(guessLength == 1) {
+								groupSet += stack[randomWord];
+							} else {
+								groupSet += `${ stack[randomWord]} `;
+							}
+							groupSet += "</li>";
+
+						}
+						groupSet += "</ul>"
+
+						flashText.innerHTML = groupSet;
+
+					break;
+					//case 39:
+					//    alert('right');
+					//    break;
+				}
+			});
+
+			randomGenerate.addEventListener('click', () => {
+
+				let guessLength = document.getElementById('shuffleNum').value;
+				let groupSet = "<ul class='stackItems'>"
+
+				for(i = 1; i <= guessLength; i++) {
+					let randomWord = Math.floor(Math.random() * stack.length);
+
+					groupSet += "<li>";
+					if(guessLength == 1) {
+						groupSet += stack[randomWord];
+					} else {
+						groupSet += `${ stack[randomWord]} `;
+					}
+					groupSet += "</li>";
+
+				}
+				groupSet += "</ul>"
+
+				flashText.innerHTML = groupSet;
+
+			});
+
+			showSet.addEventListener('click', () => {
+				document.getElementById('container').style.display = 'none';
+				document.getElementById('container2').style.display = 'flex';
+				document.getElementById('container2').style.alignItems = 'center';
+				document.getElementById('container2').style.justifyContent = 'center';
+
+				let listData = document.getElementById('set-stack');
+
+				let listItem = `<ul class='stackItems'>`
+				stack.forEach((d) => {
+					listItem += `<li>${ d }</li>`;
+				});
+				listItem += `</ul>`;
+				listData.innerHTML = listItem;
+
+			});
+
+			document.getElementById('backToCard').addEventListener('click', () => {
+				document.getElementById('container').style.display = 'flex';
+				document.getElementById('container2').style.display = 'none';
+				document.getElementById('container').style.alignItems = 'center';
+				document.getElementById('container').style.justifyContent = 'center';
+			})
+
+		});
+
+	</script>
+</body>
+</html>
